@@ -53,31 +53,19 @@ jobs:
         run: |
           VERSION="${{ inputs.version }}"
           COMMIT="${{ env.UPSTREAM_COMMIT }}"
+
+          # Read original version from source for informational purposes
+          SOURCE_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "upstream_commit=$COMMIT" >> $GITHUB_OUTPUT
+
           echo "=========================================="
-          echo "Building HWI version: $VERSION"
+          echo "Release version: $VERSION"
+          echo "Source version (will be patched): $SOURCE_VERSION"
           echo "From upstream commit: $COMMIT"
           echo "Upstream repository: ${{ env.UPSTREAM_REPO }}"
           echo "=========================================="
-
-      - name: Verify version in pyproject.toml
-        run: |
-          PYPROJECT_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
-          echo "pyproject.toml version: $PYPROJECT_VERSION"
-          echo "Expected version: ${{ steps.get_version.outputs.version }}"
-          if [ "$PYPROJECT_VERSION" != "${{ steps.get_version.outputs.version }}" ]; then
-            echo "::warning::Version mismatch: pyproject.toml has $PYPROJECT_VERSION but releasing ${{ steps.get_version.outputs.version }}"
-          fi
-
-      - name: Verify version in hwilib/__init__.py
-        run: |
-          INIT_VERSION=$(grep -Po '(?<=__version__ = ")[^"]*' hwilib/__init__.py)
-          echo "hwilib/__init__.py version: $INIT_VERSION"
-          echo "Expected version: ${{ steps.get_version.outputs.version }}"
-          if [ "$INIT_VERSION" != "${{ steps.get_version.outputs.version }}" ]; then
-            echo "::warning::Version mismatch: hwilib/__init__.py has $INIT_VERSION but releasing ${{ steps.get_version.outputs.version }}"
-          fi
 
   # Build Linux x86_64 binaries and Python distributions
   build-linux:
@@ -90,6 +78,17 @@ jobs:
         with:
           repository: bitcoin-core/HWI
           ref: ${{ needs.validate.outputs.upstream_commit }}
+
+      - name: Patch version for release
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "Patching version to $VERSION"
+          sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+          sed -i "s/__version__ = .*/__version__ = \"$VERSION\"/" hwilib/__init__.py
+          echo "=== Patched pyproject.toml ==="
+          grep "^version" pyproject.toml
+          echo "=== Patched hwilib/__init__.py ==="
+          grep "__version__" hwilib/__init__.py
 
       - name: Build Docker image
         run: |
@@ -141,6 +140,13 @@ jobs:
         with:
           repository: bitcoin-core/HWI
           ref: ${{ needs.validate.outputs.upstream_commit }}
+
+      - name: Patch version for release
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "Patching version to $VERSION"
+          sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+          sed -i "s/__version__ = .*/__version__ = \"$VERSION\"/" hwilib/__init__.py
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -197,6 +203,13 @@ jobs:
         with:
           repository: bitcoin-core/HWI
           ref: ${{ needs.validate.outputs.upstream_commit }}
+
+      - name: Patch version for release
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "Patching version to $VERSION"
+          sed -i '' "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+          sed -i '' "s/__version__ = .*/__version__ = \"$VERSION\"/" hwilib/__init__.py
 
       - name: Install dependencies
         run: |
@@ -258,6 +271,13 @@ jobs:
           repository: bitcoin-core/HWI
           ref: ${{ needs.validate.outputs.upstream_commit }}
 
+      - name: Patch version for release
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "Patching version to $VERSION"
+          sed -i '' "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+          sed -i '' "s/__version__ = .*/__version__ = \"$VERSION\"/" hwilib/__init__.py
+
       - name: Install dependencies
         run: |
           brew install pyenv
@@ -316,6 +336,13 @@ jobs:
         with:
           repository: bitcoin-core/HWI
           ref: ${{ needs.validate.outputs.upstream_commit }}
+
+      - name: Patch version for release
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "Patching version to $VERSION"
+          sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+          sed -i "s/__version__ = .*/__version__ = \"$VERSION\"/" hwilib/__init__.py
 
       - name: Build Wine Docker image
         run: |
