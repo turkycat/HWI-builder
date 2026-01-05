@@ -48,10 +48,10 @@ Download artifacts from the GitHub release page or via CLI:
 
 ```bash
 # Download a specific asset
-gh release download X.Y.Z --repo turkycat/HWI-builder --pattern 'hwi-*-linux-x86_64.tar.gz'
+gh release download X.Y.Z --repo swan-bitcoin/HWI-builder --pattern 'hwi-*-linux-x86_64.tar.gz'
 
 # Or download all assets
-gh release download X.Y.Z --repo turkycat/HWI-builder
+gh release download X.Y.Z --repo swan-bitcoin/HWI-builder
 ```
 
 ### Immutable Release Verification
@@ -60,10 +60,10 @@ Verify release assets were published via immutable release (not manually uploade
 
 ```bash
 # Verify a specific asset
-gh release verify-asset hwi-X.Y.Z-linux-x86_64.tar.gz --repo turkycat/HWI-builder
+gh release verify-asset hwi-X.Y.Z-linux-x86_64.tar.gz --repo swan-bitcoin/HWI-builder
 
 # Verify all downloaded assets
-for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh release verify-asset "$f" --repo turkycat/HWI-builder; done
+for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh release verify-asset "$f" --repo swan-bitcoin/HWI-builder; done
 ```
 
 Immutable releases guarantee that:
@@ -78,10 +78,10 @@ Verify any downloaded artifact has a valid attestation:
 
 ```bash
 # Verify a specific artifact
-gh attestation verify hwi-X.Y.Z-linux-x86_64.tar.gz --repo turkycat/HWI-builder
+gh attestation verify hwi-X.Y.Z-linux-x86_64.tar.gz --repo swan-bitcoin/HWI-builder
 
 # Or verify all downloaded assets
-for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh attestation verify "$f" --repo turkycat/HWI-builder; done
+for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh attestation verify "$f" --repo swan-bitcoin/HWI-builder; done
 ```
 
 Successful verification confirms:

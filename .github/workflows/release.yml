@@ -480,14 +480,14 @@ jobs:
 
           ### Artifacts
 
-          | Platform | Architecture | GUI | File |
-          |----------|--------------|-----|------|
-          | Linux | x86_64 | ✅ | \`hwi-$VERSION-linux-x86_64.tar.gz\` |
-          | Linux | aarch64 | ❌ | \`hwi-$VERSION-linux-aarch64.tar.gz\` |
-          | macOS | x86_64 (Intel) | ✅ | \`hwi-$VERSION-mac-x86_64.tar.gz\` |
-          | macOS | arm64 (Apple Silicon) | ❌ | \`hwi-$VERSION-mac-arm64.tar.gz\` |
-          | Windows | x86_64 | ✅ | \`hwi-$VERSION-windows-x86_64.zip\` |
-          | Python | any | ✅ | \`hwi-$VERSION-py3-none-any.whl\` |
+          | Platform | Architecture | File |
+          |----------|--------------|------|
+          | Linux | x86_64 | \`hwi-$VERSION-linux-x86_64.tar.gz\` |
+          | Linux | aarch64 | \`hwi-$VERSION-linux-aarch64.tar.gz\` |
+          | macOS | x86_64 (Intel) | \`hwi-$VERSION-mac-x86_64.tar.gz\` |
+          | macOS | arm64 (Apple Silicon) | \`hwi-$VERSION-mac-arm64.tar.gz\` |
+          | Windows | x86_64 | \`hwi-$VERSION-windows-x86_64.zip\` |
+          | Python | any | \`hwi-$VERSION-py3-none-any.whl\` |
 
           ### Verification
 
