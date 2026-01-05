@@ -36,18 +36,66 @@ Each release includes binaries for:
 | Windows  | x86_64                | Yes |
 | Python   | any                   | Yes |
 
-## Verification
+## Verifying Release Artifacts
 
-All releases include [artifact attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) providing cryptographic proof that:
+This repository uses [immutable releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases#immutable-releases) and [artifact attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) to provide cryptographic proof of build provenance.
 
-1. The artifacts were built by GitHub Actions in this repository
-2. The source was checked out from bitcoin-core/HWI at the specified commit
-3. The artifacts have not been modified since the build
+Install the [GitHub CLI](https://cli.github.com/) if not already installed.
 
-Verify any artifact with:
+### Downloading Release Artifacts
+
+Download artifacts from the GitHub release page or via CLI:
 
 ```bash
-gh attestation verify <artifact> --repo <this-repo>
+# Download a specific asset
+gh release download X.Y.Z --repo turkycat/HWI-builder --pattern 'hwi-*-linux-x86_64.tar.gz'
+
+# Or download all assets
+gh release download X.Y.Z --repo turkycat/HWI-builder
+```
+
+### Immutable Release Verification
+
+Verify release assets were published via immutable release (not manually uploaded):
+
+```bash
+# Verify a specific asset
+gh release verify-asset hwi-X.Y.Z-linux-x86_64.tar.gz --repo turkycat/HWI-builder
+
+# Verify all downloaded assets
+for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh release verify-asset "$f" --repo turkycat/HWI-builder; done
+```
+
+Immutable releases guarantee that:
+
+- The release was created by an automated workflow, not a human
+- Release artifacts cannot be modified or replaced after publication
+- The release is permanently linked to the workflow run that created it
+
+### Verifying Attestations
+
+Verify any downloaded artifact has a valid attestation:
+
+```bash
+# Verify a specific artifact
+gh attestation verify hwi-X.Y.Z-linux-x86_64.tar.gz --repo turkycat/HWI-builder
+
+# Or verify all downloaded assets
+for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh attestation verify "$f" --repo turkycat/HWI-builder; done
+```
+
+Successful verification confirms:
+
+- The artifact was built by the GitHub Actions workflow in this repository
+- The source was checked out from bitcoin-core/HWI at the documented commit
+- The artifact has not been tampered with since creation
+
+### SHA256 Checksums
+
+Download `SHA256SUMS.txt` from the release and verify file integrity:
+
+```bash
+sha256sum -c SHA256SUMS.txt
 ```
 
 ## Running a Build

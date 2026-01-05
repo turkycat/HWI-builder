@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to release (e.g., 3.1.1)"
+        description: "Version to release (e.g., 3.1.0+swan.1)"
         required: true
         type: string
       upstream_commit:
@@ -53,6 +53,13 @@ jobs:
         run: |
           VERSION="${{ inputs.version }}"
           COMMIT="${{ env.UPSTREAM_COMMIT }}"
+
+          # Validate version format includes +swan suffix
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\+swan\.[0-9]+$ ]]; then
+            echo "::error::Version must be in format X.Y.Z+swan.N (e.g., 3.1.0+swan.1)"
+            echo "::error::Received: $VERSION"
+            exit 1
+          fi
 
           # Read original version from source for informational purposes
           SOURCE_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
@@ -484,7 +491,7 @@ jobs:
 
           ### Verification
 
-          This release uses [artifact attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) to provide cryptographic proof of build provenance.
+          This release uses [immutable releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases#immutable-releases) and [artifact attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) to provide cryptographic proof of build provenance.
 
           **Download artifacts first**, either from the GitHub release page or via CLI:
           \`\`\`bash
@@ -493,6 +500,20 @@ jobs:
 
           # Or download all assets
           gh release download $VERSION --repo ${{ github.repository }}
+          \`\`\`
+
+          **Verify Immutable Release:**
+          \`\`\`bash
+          # Verify a specific asset was published via immutable release
+          gh release verify-asset hwi-$VERSION-linux-x86_64.tar.gz --repo ${{ github.repository }}
+
+          # Or verify all downloaded assets
+          for f in hwi-$VERSION* SHA256SUMS.txt; do gh release verify-asset "\$f" --repo ${{ github.repository }}; done
+
+          # Immutable releases guarantee:
+          # - The release was created by an automated workflow, not a human
+          # - Release artifacts cannot be modified or replaced after publication
+          # - The release is permanently linked to the workflow run that created it
           \`\`\`
 
           **Verify Artifact Attestations:**
